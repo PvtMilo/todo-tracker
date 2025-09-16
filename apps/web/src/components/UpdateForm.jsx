@@ -23,22 +23,18 @@ export default function UpdateForm({onSubmit, defaults, submitLabel="Tambah Upda
   };
 
   return (
-    <div className="panel">
+    <div className="panel" id="add-update">
       <div className="grid">
-        <div>
-          <label className="small">Deskripsi singkat</label>
-          <textarea className="textarea" value={text} onChange={e=>setText(e.target.value)} />
-        </div>
         <div className="grid grid-3">
+          <div>
+            <label className="small">Bukti Gambar</label>
+            <input className="input" type="file" accept="image/*"
+              onChange={async e=>{ if(e.target.files?.[0]) await handleFile(e.target.files[0]) }}/>
+          </div>
           <div>
             <label className="small">Progress % (opsional)</label>
             <input className="input" type="number" min="0" max="100"
               value={progress} onChange={e=>setProgress(e.target.value)}/>
-          </div>
-          <div>
-            <label className="small">Bukti Gambar (format bebas)</label>
-            <input className="input" type="file" accept="*/*"
-              onChange={async e=>{ if(e.target.files?.[0]) await handleFile(e.target.files[0]) }}/>
           </div>
           <div>
             <label className="small">Highlight</label><br/>
@@ -53,12 +49,16 @@ export default function UpdateForm({onSubmit, defaults, submitLabel="Tambah Upda
           </div>
           <div className="chips" style={{marginTop:6}}>
             {links.map((L,i)=>(
-              <span key={i} className="chip" onClick={()=>setLinks(links.filter((_,ix)=>ix!==i))}>{L} ✕</span>
+              <span key={i} className="chip" onClick={()=>setLinks(links.filter((_,ix)=>ix!==i))}>{L} ×</span>
             ))}
           </div>
         </div>
+        <div>
+          <label className="small">Deskripsi singkat</label>
+          <textarea className="textarea" value={text} onChange={e=>setText(e.target.value)} />
+        </div>
 
-        <div className="row">
+        <div className="sticky-actions">
           <button className="btn btn-blue" disabled={busy} onClick={async ()=>{
             setBusy(true);
             const fd = new FormData();
@@ -81,3 +81,4 @@ export default function UpdateForm({onSubmit, defaults, submitLabel="Tambah Upda
     </div>
   );
 }
+

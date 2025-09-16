@@ -3,7 +3,7 @@ import API from "../api";
 import TaskList from "../components/TaskList";
 import Filters from "../components/Filters";
 
-export default function PublicHome(){
+export default function AllTasks(){
   const [filters, setFilters] = React.useState({page:1, size:50});
   const [data, setData] = React.useState({items:[], total:0, page:1, size:50});
 
@@ -29,8 +29,9 @@ export default function PublicHome(){
       <TaskList title="On Hold" items={grouped["On Hold"]}/>
       <TaskList title="Done (Latest 10)" items={grouped["Done"]}/>
       <div className="panel">
-        <a className="btn" href="/admin/history">View all history →</a>
+        <a className="btn" href="/history">View all history →</a>
       </div>
     </div>
   );
 }
+

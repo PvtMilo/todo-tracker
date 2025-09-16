@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../api";
 import AdminHeader from "../components/AdminHeader";
 import StatusCounters from "../components/StatusCounters";
@@ -7,6 +8,8 @@ import TaskList from "../components/TaskList";
 import TagInput from "../components/TagInput";
 
 export default function AdminDashboard(){
+  const navigate = useNavigate();
+  React.useEffect(()=>{ if(!API.token()) navigate('/admin/login'); }, [navigate]);
   const [counts, setCounts] = React.useState({});
   const [filters, setFilters] = React.useState({page:1, size:20});
   const [data, setData] = React.useState({items:[], total:0, page:1, size:20});

@@ -2,7 +2,12 @@ export const fmtDate = (iso) => {
   if(!iso) return "-";
   try {
     const d = new Date(iso);
-    return d.toLocaleString();
+    const tz = localStorage.getItem('tz') || 'Asia/Jakarta';
+    return new Intl.DateTimeFormat(undefined, {
+      year: 'numeric', month: 'short', day: '2-digit',
+      hour: '2-digit', minute: '2-digit',
+      hour12: false, timeZone: tz
+    }).format(d);
   } catch { return iso; }
 };
 export const daysLate = (deadlineDate, completedAt) => {

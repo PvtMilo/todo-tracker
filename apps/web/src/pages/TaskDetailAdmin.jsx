@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import API from "../api";
 import { fmtDate } from "../utils/formatters";
 import TagInput from "../components/TagInput";
@@ -10,6 +10,7 @@ import Toast from "../components/Toast";
 
 export default function TaskDetailAdmin(){
   const { id } = useParams();
+  const navigate = useNavigate();
   const [task, setTask] = React.useState(null);
   const [edit, setEdit] = React.useState(null);
   const [imgPreview, setImgPreview] = React.useState("");
@@ -17,6 +18,7 @@ export default function TaskDetailAdmin(){
 
   const load = async ()=> setTask(await API.getTask(id));
   React.useEffect(()=>{ load(); /* eslint-disable-next-line */ }, [id]);
+  React.useEffect(()=>{ if(!API.token()) navigate('/admin/login'); }, [navigate]);
 
   if(!task) return <div className="small">Loading...</div>;
 
@@ -118,6 +120,14 @@ export default function TaskDetailAdmin(){
 
       <Lightbox src={imgPreview} onClose={()=>setImgPreview("")}/>
       <Toast show={toast.show} type={toast.type} text={toast.text} onClose={()=>setToast({...toast, show:false})}/>
+      <button
+        className="fab"
+        onClick={()=>{
+          const el = document.getElementById('add-update');
+          if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+        }}
+        aria-label="Add Update"
+      >＋ Add Update</button>
     </div>
   );
 }

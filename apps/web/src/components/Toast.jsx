@@ -9,7 +9,7 @@ export default function Toast({show, type="success", text, onClose}){
 
   if(!show) return null;
   return (
-    <div className="toast">
+    <div className="toast" role="status" aria-live="polite">
       <div className={`toast-item ${type}`}>{text}</div>
     </div>
   );

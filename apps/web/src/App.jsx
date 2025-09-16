@@ -1,6 +1,7 @@
 import React from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import PublicHeader from "./components/PublicHeader";
+import TabBar from "./components/TabBar";
 
 export default function App(){
   const loc = useLocation();
@@ -8,25 +9,11 @@ export default function App(){
 
   return (
     <div>
-      {isAdmin ? (
-        <header className="panel">
-          <div className="container hdr">
-            <div className="row" style={{alignItems:"center"}}>
-              <div className="h1">To-Do Tracker — Admin</div>
-              <div className="row">
-                <Link className="btn" to="/admin">Dashboard</Link>
-                <Link className="btn" to="/admin/history">History</Link>
-                <Link className="btn" to="/">Public</Link>
-              </div>
-            </div>
-          </div>
-        </header>
-      ) : (
-        <PublicHeader />
-      )}
-      <main className="container" style={{paddingTop:12}}>
+      {isAdmin ? null : <PublicHeader />}
+      <main className="container" style={{paddingTop:12}} role="main">
         <Outlet />
       </main>
+      {!isAdmin && <TabBar />}
     </div>
   );
 }

@@ -15,9 +15,9 @@ export default function DeadlineBadge({deadline, status, completedAt}){
     return today > end;
   })();
 
-  const cls = type === "soft"
-    ? (late ? "badge-yellow" : "badge-blue")
-    : (late ? "badge-red" : "badge-red");
+  // On-time: blue; Soft-late: yellow; Hard-late: red
+  const cls = late ? (type === "soft" ? "badge-yellow" : "badge-red") : "badge-blue";
   const label = type === "soft" ? "Soft" : "Hard";
-  return <span className={`badge ${cls}`}>{label} • {d || "-"}</span>;
+  return <span className={`badge ${cls}`}>{label} · {d || "-"}{late ? " (Overdue)" : ""}</span>;
 }
+

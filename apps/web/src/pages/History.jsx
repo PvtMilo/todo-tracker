@@ -1,19 +1,16 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import API from "../api";
 import Filters from "../components/Filters";
 import Pagination from "../components/Pagination";
 import DeadlineBadge from "../components/DeadlineBadge";
 import { daysLate, fmtDate } from "../utils/formatters";
 
-export default function HistoryAdmin(){
-  const navigate = useNavigate();
+export default function History(){
   const [filters, setFilters] = React.useState({page:1, size:20});
   const [data, setData] = React.useState({items:[], total:0, page:1, size:20});
 
   const load = async ()=> setData(await API.getHistory(filters));
-  React.useEffect(()=>{ load(); /* eslint-disable-next-line */ }, [filters.page, filters.status, filters.category, filters.tag, filters.q]);
-  React.useEffect(()=>{ if(!API.token()) navigate('/admin/login'); }, [navigate]);
+  React.useEffect(()=>{ load(); /* eslint-disable-next-line */ }, [filters.page, filters.status, filters.category, filters.tag, filters.q, filters.from, filters.to]);
 
   return (
     <div className="grid" style={{gap:12}}>
@@ -31,8 +28,8 @@ export default function HistoryAdmin(){
         onReset={()=>setFilters({page:1, size:20})}
       />
 
-      <div className="panel">
-        <table className="table">
+      <div className="panel table-wrap">
+        <table className="table" role="table">
           <thead>
             <tr>
               <th>Title</th><th>Category</th><th>Tags</th><th>Deadline</th><th>Completed</th><th>Late?</th>
@@ -65,3 +62,4 @@ export default function HistoryAdmin(){
     </div>
   );
 }
+

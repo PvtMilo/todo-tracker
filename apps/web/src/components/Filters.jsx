@@ -1,13 +1,21 @@
 import React from "react";
 
 export default function Filters({filters, setFilters, onApply, onReset, compact=false}){
+  const [q, setQ] = React.useState(filters.q || "");
+  React.useEffect(()=>{ setQ(filters.q||""); /* sync external changes */ }, [filters.q]);
+  React.useEffect(()=>{
+    const t = setTimeout(()=> setFilters({...filters, q, page:1}), 250);
+    return ()=> clearTimeout(t);
+  // eslint-disable-next-line
+  }, [q]);
+
   return (
     <div className="panel">
       <div className="grid grid-3">
         <div>
-          <label className="small">Search</label>
-          <input className="input" placeholder="Cari judul..." value={filters.q||""}
-            onChange={e=>setFilters({...filters, q:e.target.value, page:1})}/>
+          <label className="small" htmlFor="search-input">Search</label>
+          <input id="search-input" className="input" placeholder="Cari judul..." value={q}
+            onChange={e=>setQ(e.target.value)} aria-label="Search tasks"/>
         </div>
         <div>
           <label className="small">Status</label>
@@ -29,8 +37,8 @@ export default function Filters({filters, setFilters, onApply, onReset, compact=
           </select>
         </div>
         <div>
-          <label className="small">Tag (exact)</label>
-          <input className="input" placeholder="mis. docker" value={filters.tag||""}
+          <label className="small" htmlFor="tag-input">Tag (exact)</label>
+          <input id="tag-input" className="input" placeholder="mis. docker" value={filters.tag||""}
             onChange={e=>setFilters({...filters, tag:e.target.value||undefined, page:1})}/>
         </div>
         {!compact && (

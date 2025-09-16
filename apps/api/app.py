@@ -595,8 +595,9 @@ def export_xlsx():
     )
 
 if __name__ == "__main__":
-    from waitress import serve  # optional
+    # Try to run with waitress if available; otherwise fallback to Flask dev server
     try:
+        from waitress import serve  # optional
         serve(app, host="127.0.0.1", port=5000)
     except Exception:
         app.run(host="127.0.0.1", port=5000, debug=config.DEBUG)
