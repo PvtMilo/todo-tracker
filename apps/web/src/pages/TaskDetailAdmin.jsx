@@ -19,7 +19,28 @@ export default function TaskDetailAdmin(){
   const [toast, setToast] = React.useState({show:false, type:"success", text:""});
   const [detailsCollapsed, setDetailsCollapsed] = React.useState(true);
 
-  const load = async ()=> setTask(await API.getTask(id));
+  const load = async ()=>{
+    const fetched = await API.getTask(id);
+    if(fetched?.deadline){
+      const existing = fetched.deadline;
+      let dateVal = existing.date || "";
+      let timeVal = existing.time || "";
+      if(dateVal && dateVal.includes("T")){
+        const [dPart, tPart] = dateVal.split("T");
+        dateVal = dPart;
+        if(!timeVal && tPart) timeVal = tPart.slice(0,5);
+      }
+      fetched.deadline = {
+        type: existing.type || null,
+        date: dateVal || null,
+        time: timeVal || null
+      };
+      if(!fetched.deadline.type){
+        fetched.deadline = {type:null, date:null, time:null};
+      }
+    }
+    setTask(fetched);
+  };
   React.useEffect(()=>{ load(); /* eslint-disable-next-line */ }, [id]);
   React.useEffect(()=>{ if(!API.token()) navigate('/admin/login'); }, [navigate]);
 
@@ -61,7 +82,14 @@ export default function TaskDetailAdmin(){
               <div>
                 <label className="small">Deadline Type</label>
                 <select className="select" value={task.deadline?.type || ""}
-                  onChange={e=>setTask({...task, deadline:{...task.deadline, type:e.target.value || null}})}>
+                  onChange={e=>{
+                    const v = e.target.value;
+                    if(!v){
+                      setTask({...task, deadline:{type:null, date:null, time:null}});
+                    } else {
+                      setTask({...task, deadline:{...(task.deadline||{}), type:v}});
+                    }
+                  }}>
                   <option value="">(None)</option>
                   <option value="soft">soft</option>
                   <option value="hard">hard</option>
@@ -69,8 +97,23 @@ export default function TaskDetailAdmin(){
               </div>
               <div>
                 <label className="small">Deadline Date</label>
-                <input className="input" type="date" value={task.deadline?.date || ""}
-                  onChange={e=>setTask({...task, deadline:{...task.deadline, date:e.target.value || null}})} />
+                <input
+                  className="input"
+                  type="date"
+                  value={task.deadline?.date || ""}
+                  onChange={e=>setTask({...task, deadline:{...(task.deadline||{}), date:e.target.value || null}})}
+                  disabled={!task.deadline?.type}
+                />
+              </div>
+              <div>
+                <label className="small">Deadline Time</label>
+                <input
+                  className="input"
+                  type="time"
+                  value={task.deadline?.time || ""}
+                  onChange={e=>setTask({...task, deadline:{...(task.deadline||{}), time:e.target.value || null}})}
+                  disabled={!task.deadline?.type}
+                />
               </div>
               <div>
                 <label className="small">Tags</label>
@@ -79,10 +122,15 @@ export default function TaskDetailAdmin(){
             </div>
             <div className="row" style={{marginTop:8}}>
               <button className="btn btn-blue" onClick={async ()=>{
+                const dl = task.deadline && task.deadline.type ? {
+                  type: task.deadline.type,
+                  date: task.deadline.date || null,
+                  time: task.deadline.time || null
+                } : {type:null, date:null, time:null};
                 await API.updateTask(task.id, {
                   title: task.title, category: task.category,
                   progress: task.progress_pct,
-                  deadline: task.deadline || {type:null, date:null},
+                  deadline: dl,
                   tags: task.tags || []
                 });
                 await load();

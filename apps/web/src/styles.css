@@ -62,8 +62,13 @@ button{cursor:pointer}
 .card{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--border);padding:12px;border-radius:12px;background:#0b1220}
 .card .title{font-weight:700}
 .card .meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.progress{height:8px;background:#1f2937;border-radius:999px;overflow:hidden}
-.progress > span{display:block;height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e)}
+.progress{height:8px;background:#1f2937;border-radius:999px;overflow:hidden;position:relative}
+.progress > span{display:block;height:100%;background:linear-gradient(90deg,#3b82f6,#22c55e);transition:width .25s ease}
+.progress-warning > span{background:linear-gradient(90deg,#f59e0b,#f97316)}
+.progress-danger > span{background:linear-gradient(90deg,#ef4444,#b91c1c)}
+.progress-success > span{background:linear-gradient(90deg,#22c55e,#15803d)}
+.progress-meta{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
+.progress-meta span:last-child{color:var(--text)}
 
 .row-actions{display:flex;gap:6px;flex-wrap:wrap}
 .hl{border-left:4px solid var(--blue);padding-left:8px}
@@ -75,6 +80,10 @@ button{cursor:pointer}
 .pagination button{padding:6px 10px}
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:50}
 .lightbox img{max-width:95vw;max-height:92vh;border-radius:12px}
+
+.modal-backdrop{position:fixed;inset:0;padding:16px;background:rgba(15,23,42,.78);display:flex;align-items:center;justify-content:center;z-index:700}
+.modal{background:#0b1220;border:1px solid var(--border);border-radius:14px;padding:20px;max-width:420px;width:100%;box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.modal .row{margin-top:0}
 
 
 /* ...semua yang lama... */

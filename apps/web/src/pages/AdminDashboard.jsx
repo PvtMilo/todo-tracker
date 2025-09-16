@@ -15,6 +15,8 @@ export default function AdminDashboard(){
   const [data, setData] = React.useState({items:[], total:0, page:1, size:20});
   const [newTask, setNewTask] = React.useState({title:"", category:"Operational", tags:[]});
 
+  const [deadlineDialog, setDeadlineDialog] = React.useState(emptyDeadlineState);
+
   const load = async ()=>{
     setCounts(await API.counts());
     const r = await API.getTasks(filters);
@@ -22,11 +24,61 @@ export default function AdminDashboard(){
   };
   React.useEffect(()=>{ load(); /* eslint-disable-next-line */ }, [filters.page, filters.status, filters.category, filters.tag, filters.q]);
 
+  React.useEffect(()=>{
+    if(!deadlineDialog.open) return;
+    const handler = (e)=>{
+      if(e.key === "Escape"){
+        e.preventDefault();
+        setDeadlineDialog(emptyDeadlineState());
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return ()=> window.removeEventListener("keydown", handler);
+  }, [deadlineDialog.open]);
+
   const grouped = {
     "Not Started": data.items.filter(i=>i.status==="Not Started"),
     "In Progress": data.items.filter(i=>i.status==="In Progress"),
     "On Hold": data.items.filter(i=>i.status==="On Hold"),
     "Done": data.items.filter(i=>i.status==="Done")
+  };
+
+  const openDeadlineDialog = (task)=>{
+    const existing = task.deadline || {};
+    let typeSel = existing.type || "";
+    let dateSel = "";
+    let timeSel = existing.time || "";
+    if(existing.date){
+      if(existing.date.includes("T")){
+        const [dPart, tPart] = existing.date.split("T");
+        dateSel = dPart;
+        if(!timeSel && tPart) timeSel = tPart.slice(0,5);
+      } else {
+        dateSel = existing.date;
+      }
+    }
+    setDeadlineDialog({open:true, task, type:typeSel, date:dateSel, time:timeSel});
+  };
+
+  const closeDeadlineDialog = ()=> setDeadlineDialog(emptyDeadlineState());
+
+  const submitDeadline = async ()=>{
+    const {task, type, date, time} = deadlineDialog;
+    if(!task) return;
+    if(!type){
+      await API.updateTask(task.id, {deadline:{type:null, date:null, time:null}});
+      closeDeadlineDialog();
+      await load();
+      return;
+    }
+    const typeVal = type;
+    const dateVal = (date || "").trim();
+    const timeVal = (time || "").trim();
+    if(!dateVal){ alert("Tanggal deadline wajib."); return; }
+    if(!timeVal){ alert("Waktu deadline wajib."); return; }
+    await API.updateTask(task.id, {deadline:{type:typeVal, date:dateVal, time:timeVal}});
+    closeDeadlineDialog();
+    await load();
   };
 
   const handleAction = async (type, task)=>{
@@ -47,12 +99,8 @@ export default function AdminDashboard(){
       await API.updateTask(task.id, {status:"Done"});
     }
     if(type==="set_deadline"){
-      const typeSel = prompt("Tipe deadline? (soft/hard) kosong=hapus"); // quick setter
-      let dateSel = null;
-      if(typeSel==="soft" || typeSel==="hard"){
-        dateSel = prompt("Tanggal (YYYY-MM-DD)");
-      }
-      await API.updateTask(task.id, {deadline:{type:typeSel||null, date:dateSel||null}});
+      openDeadlineDialog(task);
+      return;
     }
     if(type==="update"){
       location.href = `/admin/task/${task.id}`;
@@ -104,8 +152,46 @@ export default function AdminDashboard(){
       <TaskList title="In Progress" items={grouped["In Progress"]} admin onAction={handleAction}/>
       <TaskList title="On Hold" items={grouped["On Hold"]} admin onAction={handleAction}/>
       <TaskList title="Done (collapsed preview: showing page items with status=Done)" items={grouped["Done"]} admin onAction={handleAction}/>
+      {deadlineDialog.open && (
+        <div className="modal-backdrop" onClick={closeDeadlineDialog}>
+          <form className="modal" role="dialog" aria-modal="true" aria-labelledby="deadline-dialog-title" onSubmit={e=>{e.preventDefault(); submitDeadline();}} onClick={e=>e.stopPropagation()}>
+            <div className="h2" id="deadline-dialog-title">Set Deadline</div>
+            <div className="small" style={{marginBottom:12}}>Task: {deadlineDialog.task?.title}</div>
+            <div className="small" style={{marginBottom:16}}>Pilih tipe untuk mengaktifkan tanggal & waktu. Gunakan opsi "No Deadline" untuk menghapus.</div>
+            <div className="grid grid-3" style={{marginBottom:12}}>
+              <div>
+                <label className="small">Tipe</label>
+                <select className="select" value={deadlineDialog.type} autoFocus onChange={e=>{
+                  const v = e.target.value;
+                  setDeadlineDialog(prev=>({...prev, type:v, ...(v ? {} : {date:"", time:""})}));
+                }}>
+                  <option value="">(No Deadline)</option>
+                  <option value="soft">Soft</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </div>
+              <div>
+                <label className="small">Tanggal</label>
+                <input className="input" type="date" value={deadlineDialog.date} onChange={e=>setDeadlineDialog(prev=>({...prev, date:e.target.value}))} disabled={!deadlineDialog.type}/>
+              </div>
+              <div>
+                <label className="small">Waktu</label>
+                <input className="input" type="time" value={deadlineDialog.time} onChange={e=>setDeadlineDialog(prev=>({...prev, time:e.target.value}))} disabled={!deadlineDialog.type}/>
+              </div>
+            </div>
+            <div className="row" style={{justifyContent:"flex-end"}}>
+              <button className="btn" type="button" onClick={closeDeadlineDialog}>Batal</button>
+              <button className="btn btn-blue" type="submit">Simpan</button>
+            </div>
+          </form>
+        </div>
+      )}
     </div>
   );
+}
+
+function emptyDeadlineState(){
+  return {open:false, task:null, type:"", date:"", time:""};
 }
 
 function formFrom({text, progress_pct, links, highlight}){
