@@ -1,10 +1,15 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 export default function AdminHeader(){
+  const loc = useLocation();
+  const title = React.useMemo(()=>{
+    if(loc.pathname.startsWith("/admin/history")) return "History ADMIN";
+    return "Dashboard ADMIN";
+  }, [loc.pathname]);
   return (
     <div className="hdr">
-      <div className="h1">Dashboard ADMIN</div>
+      <div className="h1">{title}</div>
       <div className="row">
         <Link className="btn" to="/admin">Dashboard</Link>
         <Link className="btn" to="/admin/history">History</Link>

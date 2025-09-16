@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api";
+import AdminHeader from "../components/AdminHeader";
 import Filters from "../components/Filters";
 import Pagination from "../components/Pagination";
 import DeadlineBadge from "../components/DeadlineBadge";
@@ -17,6 +18,7 @@ export default function HistoryAdmin(){
 
   return (
     <div className="grid" style={{gap:12}}>
+      <AdminHeader />
       <div className="panel">
         <div className="h2">History (Done)</div>
         <div className="row">
