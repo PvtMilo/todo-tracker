@@ -8,6 +8,8 @@ import UpdateForm from "../components/UpdateForm";
 import Lightbox from "../components/Lightbox";
 import Toast from "../components/Toast";
 
+import AdminHeader from "../components/AdminHeader";
+
 export default function TaskDetailAdmin(){
   const { id } = useParams();
   const navigate = useNavigate();
@@ -25,6 +27,7 @@ export default function TaskDetailAdmin(){
 
   return (
     <div className="grid" style={{gap:12}}>
+      <AdminHeader />
       <div className="panel">
         <div className="row" style={{justifyContent:'space-between', alignItems:'center'}}>
           <div className="h2">Task Detail (Admin)</div>

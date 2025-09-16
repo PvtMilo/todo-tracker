@@ -5,6 +5,7 @@ export default function AdminHeader(){
   const loc = useLocation();
   const title = React.useMemo(()=>{
     if(loc.pathname.startsWith("/admin/history")) return "History ADMIN";
+    if(loc.pathname.startsWith("/admin/task/")) return "Task Detail ADMIN";
     return "Dashboard ADMIN";
   }, [loc.pathname]);
   return (
