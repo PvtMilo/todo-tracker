@@ -15,6 +15,7 @@ export default function TaskDetailAdmin(){
   const [edit, setEdit] = React.useState(null);
   const [imgPreview, setImgPreview] = React.useState("");
   const [toast, setToast] = React.useState({show:false, type:"success", text:""});
+  const [detailsCollapsed, setDetailsCollapsed] = React.useState(true);
 
   const load = async ()=> setTask(await API.getTask(id));
   React.useEffect(()=>{ load(); /* eslint-disable-next-line */ }, [id]);
@@ -25,60 +26,69 @@ export default function TaskDetailAdmin(){
   return (
     <div className="grid" style={{gap:12}}>
       <div className="panel">
-        <div className="h2">Task Detail (Admin)</div>
-        <div className="grid grid-3">
-          <div>
-            <label className="small">Judul</label>
-            <input className="input" value={task.title}
-              onChange={e=>setTask({...task, title:e.target.value})}/>
-          </div>
-          <div>
-            <label className="small">Kategori</label>
-            <select className="select" value={task.category}
-              onChange={e=>setTask({...task, category:e.target.value})}>
-              <option>Operational</option>
-              <option>Development</option>
-              <option>Experiment/Belajar</option>
-            </select>
-          </div>
-          <div>
-            <label className="small">Progress %</label>
-            <input className="input" type="number" min="0" max="100"
-              value={task.progress_pct??0}
-              onChange={e=>setTask({...task, progress_pct:Number(e.target.value)})}/>
-          </div>
-          <div>
-            <label className="small">Deadline Type</label>
-            <select className="select" value={task.deadline?.type || ""}
-              onChange={e=>setTask({...task, deadline:{...task.deadline, type:e.target.value || null}})}>
-              <option value="">(None)</option>
-              <option value="soft">soft</option>
-              <option value="hard">hard</option>
-            </select>
-          </div>
-          <div>
-            <label className="small">Deadline Date</label>
-            <input className="input" type="date" value={task.deadline?.date || ""}
-              onChange={e=>setTask({...task, deadline:{...task.deadline, date:e.target.value || null}})} />
-          </div>
-          <div>
-            <label className="small">Tags</label>
-            <TagInput value={task.tags||[]} onChange={tags=>setTask({...task, tags})}/>
-          </div>
+        <div className="row" style={{justifyContent:'space-between', alignItems:'center'}}>
+          <div className="h2">Task Detail (Admin)</div>
+          <button className="btn" onClick={()=>setDetailsCollapsed(v=>!v)} aria-expanded={!detailsCollapsed} aria-controls="task-details-body">
+            {detailsCollapsed ? 'Expand' : 'Collapse'}
+          </button>
         </div>
-        <div className="row" style={{marginTop:8}}>
-          <button className="btn btn-blue" onClick={async ()=>{
-            await API.updateTask(task.id, {
-              title: task.title, category: task.category,
-              progress: task.progress_pct,
-              deadline: task.deadline || {type:null, date:null},
-              tags: task.tags || []
-            });
-            await load();
-            setToast({show:true, type:"success", text:"Perubahan task disimpan"});
-          }}>Save</button>
-          <span className="small">Created: {fmtDate(task.created_at)} • Updated: {fmtDate(task.updated_at)}</span>
-        </div>
+        {!detailsCollapsed && (
+          <div id="task-details-body">
+            <div className="grid grid-3">
+              <div>
+                <label className="small">Judul</label>
+                <input className="input" value={task.title}
+                  onChange={e=>setTask({...task, title:e.target.value})}/>
+              </div>
+              <div>
+                <label className="small">Kategori</label>
+                <select className="select" value={task.category}
+                  onChange={e=>setTask({...task, category:e.target.value})}>
+                  <option>Operational</option>
+                  <option>Development</option>
+                  <option>Experiment/Belajar</option>
+                </select>
+              </div>
+              <div>
+                <label className="small">Progress %</label>
+                <input className="input" type="number" min="0" max="100"
+                  value={task.progress_pct??0}
+                  onChange={e=>setTask({...task, progress_pct:Number(e.target.value)})}/>
+              </div>
+              <div>
+                <label className="small">Deadline Type</label>
+                <select className="select" value={task.deadline?.type || ""}
+                  onChange={e=>setTask({...task, deadline:{...task.deadline, type:e.target.value || null}})}>
+                  <option value="">(None)</option>
+                  <option value="soft">soft</option>
+                  <option value="hard">hard</option>
+                </select>
+              </div>
+              <div>
+                <label className="small">Deadline Date</label>
+                <input className="input" type="date" value={task.deadline?.date || ""}
+                  onChange={e=>setTask({...task, deadline:{...task.deadline, date:e.target.value || null}})} />
+              </div>
+              <div>
+                <label className="small">Tags</label>
+                <TagInput value={task.tags||[]} onChange={tags=>setTask({...task, tags})}/>
+              </div>
+            </div>
+            <div className="row" style={{marginTop:8}}>
+              <button className="btn btn-blue" onClick={async ()=>{
+                await API.updateTask(task.id, {
+                  title: task.title, category: task.category,
+                  progress: task.progress_pct,
+                  deadline: task.deadline || {type:null, date:null},
+                  tags: task.tags || []
+                });
+                await load();
+                setToast({show:true, type:"success", text:"Perubahan task disimpan"});
+              }}>Save</button>
+              <span className="small">Created: {fmtDate(task.created_at)} - Updated: {fmtDate(task.updated_at)}</span>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="panel">
@@ -127,7 +137,9 @@ export default function TaskDetailAdmin(){
           if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
         }}
         aria-label="Add Update"
-      >＋ Add Update</button>
+      >
+        + Add Update
+      </button>
     </div>
   );
 }
