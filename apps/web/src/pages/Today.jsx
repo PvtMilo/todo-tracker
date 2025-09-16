@@ -23,6 +23,7 @@ export default function Today(){
   const items = data.items||[];
   const overdue = items.filter(isOverdue);
   const dueToday = items.filter(t=> isToday(t?.deadline?.date) && t.status !== "Done");
+  const notStarted = items.filter(t=> t.status === "Not Started");
   const inProgress = items.filter(t=> t.status === "In Progress");
   const stale = items.filter(t=> t.stale);
 
@@ -32,6 +33,7 @@ export default function Today(){
         <div className="h2">Today</div>
         <div className="small">Overdue: {overdue.length} · Due Today: {dueToday.length} · In Progress: {inProgress.length}</div>
       </div>
+      <TaskList title="Not Started" items={notStarted} />
       <TaskList title="Overdue" items={overdue} />
       <TaskList title="Due Today" items={dueToday} />
       <TaskList title="In Progress" items={inProgress} />
